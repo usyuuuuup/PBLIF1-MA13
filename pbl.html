@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lost & Found Kampus</title>
+    <!-- FontAwesome untuk Icon -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="pbl.css">
+</head>
+<body>
+
+    <!-- NAVIGASI ATAS / HEADER -->
+    <header class="app-header">
+        <div class="header-container">
+            <div class="logo">
+                <i class="fa-solid fa-box-archive"></i>
+                <span>Lost & Found Kampus</span>
+            </div>
+            <div class="role-switcher">
+                <button id="btn-role-user" class="active" onclick="switchRole('user')"><i class="fa-solid fa-user"></i> Mahasiswa/Staf</button>
+                <button id="btn-role-admin" onclick="switchRole('admin')"><i class="fa-solid fa-user-shield"></i> Admin Security</button>
+            </div>
+        </div>
+    </header>
+
+    <main class="main-content">
+
+        <!-- ================= TAMPILAN PENGGUNA (USER) ================= -->
+        <div id="user-view" class="view-section active">
+
+            <!-- 1. AUTH / LOGIN & DAFTAR -->
+            <section id="user-auth" class="card-box auth-card">
+                <div class="auth-toggle">
+                    <button class="active" onclick="toggleAuthTab('login')">Masuk</button>
+                    <button onclick="toggleAuthTab('register')">Daftar Akun</button>
+                </div>
+                
+                <!-- Form Login -->
+                <form id="form-login" class="auth-form active">
+                    <h3>Masuk ke Akun Kampus</h3>
+                    <div class="form-group">
+                        <label>NIM / Email Kampus</label>
+                        <input type="text" placeholder="Masukkan NIM atau email kampus" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Kata Sandi</label>
+                        <input type="password" placeholder="Masukkan kata sandi" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Masuk</button>
+                </form>
+
+                <!-- Form Register -->
+                <form id="form-register" class="auth-form hidden">
+                    <h3>Daftar Akun Baru</h3>
+                    <div class="form-group">
+                        <label>Nama Lengkap</label>
+                        <input type="text" placeholder="Nama sesuai KTM/KTP" required>
+                    </div>
+                    <div class="form-group">
+                        <label>NIM / NIP</label>
+                        <input type="text" placeholder="Masukkan NIM/NIP" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Email Kampus (@ac.id)</label>
+                        <input type="email" placeholder="nama@student.ac.id" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Kata Sandi</label>
+                        <input type="password" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Daftar Sekarang</button>
+                </form>
+            </section>
+
+            <!-- 2. BERANDA / DAFAR BARANG -->
+            <section id="user-home" class="hidden">
+                <div class="search-bar-container">
+                    <input type="text" id="search-input" placeholder="Cari barang hilang/ditemukan..." onkeyup="filterItems()">
+                    <button class="btn btn-primary"><i class="fa-solid fa-magnifying-glass"></i></button>
+                </div>
+
+                <!-- Category Filters -->
+                <div class="category-chips">
+                    <span class="chip active" onclick="filterCategory('semua')">Semua</span>
+                    <span class="chip" onclick="filterCategory('Dompet')"><i class="fa-solid fa-wallet"></i> Dompet</span>
+                    <span class="chip" onclick="filterCategory('Kunci')"><i class="fa-solid fa-key"></i> Kunci</span>
+                    <span class="chip" onclick="filterCategory('Elektronik')"><i class="fa-solid fa-laptop"></i> Elektronik</span>
+                    <span class="chip" onclick="filterCategory('Dokumen')"><i class="fa-solid fa-id-card"></i> Dokumen/KTM</span>
+                </div>
+
+                <div class="section-title">
+                    <h2>Daftar Laporan Terbaru</h2>
+                </div>
+
+                <div class="item-grid" id="item-grid">
+                    <!-- Barang dipopulasi lewat JavaScript -->
+                </div>
+            </section>
+
+            <!-- 3. LAPOR BARANG -->
+            <section id="user-report" class="hidden">
+                <div class="card-box">
+                    <h2>Form Laporan Barang</h2>
+                    <form id="report-form" onsubmit="handleReportSubmit(event)">
+                        <div class="form-group">
+                            <label>Tipe Laporan</label>
+                            <select id="report-type" required>
+                                <option value="Kehilangan">Saya Kehilangan Barang</option>
+                                <option value="Penemuan">Saya Menemukan Barang</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Nama Barang</label>
+                            <input type="text" id="report-name" placeholder="Contoh: Dompet Kulit Cokelat" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Kategori</label>
+                            <select id="report-category" required>
+                                <option value="Dompet">barang</option>
+                                <option value="Kunci">barang</option>
+                                <option value="Elektronik">barang</option>
+                                <option value="Dokumen">barang</option>
+                                <option value="Lainnya">Lain-lain</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Lokasi Terakhir / Ditemukan</label>
+                            <input type="text" id="report-location" placeholder="Contoh: Perpustakaan Lantai 2" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Tanggal Kejadian</label>
+                            <input type="date" id="report-date" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Deskripsi & Ciri-ciri Khusus</label>
+                            <textarea id="report-desc" rows="4" placeholder="Sebutkan warna, isi, stiker, atau ciri menonjol..." required></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>Unggah Foto Barang</label>
+                            <input type="file" accept="image/*">
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-block">Kirim Laporan</button>
+                    </form>
+                </div>
+            </section>
+
+            <!-- NAVIGASI BAWAH UNTUK MAHASISWA -->
+            <nav class="bottom-nav">
+                <button class="nav-item active" onclick="switchUserTab('home')">
+                    <i class="fa-solid fa-house"></i>
+                    <span>Beranda</span>
+                </button>
+                <button class="nav-item" onclick="switchUserTab('report')">
+                    <i class="fa-solid fa-circle-plus"></i>
+                    <span>Lapor</span>
+                </button>
+                <button class="nav-item" onclick="switchUserTab('auth')">
+                    <i class="fa-solid fa-user"></i>
+                    <span>Akun</span>
+                </button>
+            </nav>
+        </div>
+
+
+        <!-- ================= TAMPILAN ADMIN (SECURITY) ================= -->
+        <div id="admin-view" class="view-section hidden">
+            
+            <!-- Sub-Navigasi Admin -->
+            <div class="admin-menu-tabs">
+                <button class="admin-tab active" onclick="switchAdminTab('dashboard')"><i class="fa-solid fa-gauge"></i> Dashboard</button>
+                <button class="admin-tab" onclick="switchAdminTab('daily')"><i class="fa-solid fa-calendar-day"></i> Rekapan Harian</button>
+                <button class="admin-tab" onclick="switchAdminTab('monthly')"><i class="fa-solid fa-chart-pie"></i> Rekapan Bulanan</button>
+            </div>
+
+            <!-- 1. DASHBOARD VERIFIKASI ADMIN -->
+            <section id="admin-dashboard">
+                <div class="stats-row">
+                    <div class="stat-card yellow">
+                        <h3>12</h3>
+                        <p>Menunggu Verifikasi</p>
+                    </div>
+                    <div class="stat-card green">
+                        <h3>45</h3>
+                        <p>Barang Diamankan</p>
+                    </div>
+                    <div class="stat-card blue">
+                        <h3>28</h3>
+                        <p>Berhasil Diklaim</p>
+                    </div>
+                </div>
+
+                <h3>Verifikasi Laporan Masuk</h3>
+                <div class="admin-table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Barang</th>
+                                <th>Pelapor</th>
+                                <th>Lokasi</th>
+                                <th>Tipe</th>
+                                <th>Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="admin-pending-list">
+                            <!-- Populated by JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- 2. REKAPAN HARIAN ADMIN -->
+            <section id="admin-daily" class="hidden">
+                <div class="card-box">
+                    <div class="card-header">
+                        <h2>Log Operasional & Serah Terima Harian</h2>
+                        <input type="date" id="daily-date-picker" value="2026-10-26" class="date-input">
+                    </div>
+
+                    <div class="shift-info">
+                        <p><strong>Shift Bertugas:</strong> Shift 1 (07.00 - 15.00 WIB) | <strong>Petugas:</strong> Bripka M. Ridwan</p>
+                    </div>
+
+                    <h3>Daftar Barang Masuk & Serah Terima Hari Ini</h3>
+                    <div class="admin-table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Waktu</th>
+                                    <th>ID Barang</th>
+                                    <th>Nama Barang</th>
+                                    <th>Penerima (Pos)</th>
+                                    <th>Status Fisik</th>
+                                    <th>Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>08:15 WIB</td>
+                                    <td>#TRX-901</td>
+                                    <td>Kunci Motor Honda</td>
+                                    <td>Pos Security Main Gate</td>
+                                    <td><span class="badge badge-success">Disimpan di Locker A</span></td>
+                                    <td><button class="btn btn-sm btn-outline">Detail</button></td>
+                                </tr>
+                                <tr>
+                                    <td>10:30 WIB</td>
+                                    <td>#TRX-902</td>
+                                    <td>KTM a.n Budi Santoso</td>
+                                    <td>Pos Posko Pusat</td>
+                                    <td><span class="badge badge-success">Disimpan di Locker C</span></td>
+                                    <td><button class="btn btn-sm btn-outline">Detail</button></td>
+                                </tr>
+                                <tr>
+                                    <td>13:00 WIB</td>
+                                    <td>#TRX-885</td>
+                                    <td>Dompet Hitam Eiger</td>
+                                    <td>Pos Posko Pusat</td>
+                                    <td><span class="badge badge-info">Dikembalikan ke Pemilik</span></td>
+                                    <td><button class="btn btn-sm btn-outline">Detail</button></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 3. REKAPAN BULANAN ADMIN -->
+            <section id="admin-monthly" class="hidden">
+                <div class="card-box">
+                    <div class="card-header">
+                        <h2>Laporan Rekapan Bulanan</h2>
+                        <div class="filter-group">
+                            <select id="monthly-period" class="date-input">
+                                <option>Okt 2026</option>
+                                <option>Sep 2026</option>
+                                <option>Agu 2026</option>
+                            </select>
+                            <button class="btn btn-secondary" onclick="alert('Mengekspor PDF/Excel Laporan Bulanan...')"><i class="fa-solid fa-download"></i> Ekspor</button>
+                        </div>
+                    </div>
+
+                    <!-- Summary Grid -->
+                    <div class="stats-row">
+                        <div class="stat-card gray">
+                            <h3>142</h3>
+                            <p>Total Barang Ditemukan</p>
+                        </div>
+                        <div class="stat-card green">
+                            <h3>118</h3>
+                            <p>Berhasil Dikembalikan</p>
+                        </div>
+                        <div class="stat-card red">
+                            <h3>24</h3>
+                            <p>Belum Terdokumentasi/Klaim</p>
+                        </div>
+                        <div class="stat-card blue">
+                            <h3>83.1%</h3>
+                            <p>Tingkat Pengembalian</p>
+                        </div>
+                    </div>
+
+                    <!-- Visual Section -->
+                    <div class="monthly-analytics">
+                        <div class="chart-box">
+                            <h3>Kategori Barang Dominan</h3>
+                            <ul class="category-rank-list">
+                                <li>
+                                    <span><i class="fa-solid fa-id-card"></i> KTM & Dokumen</span>
+                                    <strong>45% (64 Unit)</strong>
+                                </li>
+                                <li>
+                                    <span><i class="fa-solid fa-key"></i> Kunci Kendaraan</span>
+                                    <strong>25% (35 Unit)</strong>
+                                </li>
+                                <li>
+                                    <span><i class="fa-solid fa-wallet"></i> Dompet & Uang</span>
+                                    <strong>18% (26 Unit)</strong>
+                                </li>
+                                <li>
+                                    <span><i class="fa-solid fa-laptop"></i> Elektronik & Gadget</span>
+                                    <strong>12% (17 Unit)</strong>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="chart-box">
+                            <h3>Lokasi Paling Sering Terjadi Kehilangan</h3>
+                            <ol class="location-rank">
+                                <li>Perpustakaan Pusat (32 Laporan)</li>
+                                <li>Kantin Utama (28 Laporan)</li>
+                                <li>Gedung Kuliah Bersama A (19 Laporan)</li>
+                                <li>Area Parkir Lapangan (12 Laporan)</li>
+                            </ol>
+                        </div>
+                    </div>
+
+                </div>
+            </section>
+
+        </div>
+
+    </main>
+
+    <!-- MODAL DETAIL BARANG & KLAIM -->
+    <div id="item-modal" class="modal-backdrop hidden">
+        <div class="modal-card">
+            <button class="modal-close" onclick="closeModal()">&times;</button>
+            <img id="modal-img" src="" alt="Foto Barang" class="modal-img">
+            <h2 id="modal-title">Nama Barang</h2>
+            <div class="modal-badges">
+                <span id="modal-status" class="badge">Status</span>
+                <span id="modal-category" class="badge badge-gray">Kategori</span>
+            </div>
+            <p><strong>Lokasi:</strong> <span id="modal-location"></span></p>
+            <p><strong>Tanggal:</strong> <span id="modal-date"></span></p>
+            <p><strong>Ciri-ciri & Deskripsi:</strong></p>
+            <p id="modal-desc" class="modal-desc-box"></p>
+            
+            <div class="modal-actions">
+                <button class="btn btn-primary btn-block" onclick="submitClaim()">Ajukan Klaim / Verifikasi</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="pbl.js"></script>
+</body>
+</html>
